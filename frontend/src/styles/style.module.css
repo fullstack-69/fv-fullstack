@@ -17,3 +17,16 @@
   gap: 0.5rem;
   align-items: center;
 }
+
+.noMB {
+  margin-bottom: 0 !important;
+}
+
+.formError {
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+  color: #f38f79;
+  font-size: 0.95rem;
+}

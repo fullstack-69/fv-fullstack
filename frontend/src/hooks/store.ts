@@ -5,6 +5,8 @@ import { type User } from "../utils/schema";
 interface Store {
   openVN: boolean;
   setOpenVN: (open: boolean) => void;
+  openRHF: boolean;
+  setOpenRHF: (open: boolean) => void;
   users: User[];
   setUsers: (users: User[]) => void;
   fetchUsers: () => void;
@@ -16,6 +18,8 @@ interface Store {
 const useStore = create<Store>((set) => ({
   openVN: false,
   setOpenVN: (open) => set({ openVN: open }),
+  openRHF: false,
+  setOpenRHF: (open) => set({ openRHF: open }),
   users: [],
   setUsers: (users) => set({ users }),
   fetchUsers: () => {},

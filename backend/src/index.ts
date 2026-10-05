@@ -4,6 +4,13 @@ import express from "express";
 import cors from "cors";
 import dayjs from "dayjs";
 import { PORT } from "./utils/env.js";
+import {
+  zUsersRes,
+  zUsersWrongRes,
+  zUsersCreateReq,
+  type UserCreateReq,
+} from "./schema.js";
+import { validateData } from "./validation.js";
 import { nanoid } from "nanoid";
 import { initData } from "./utils/initData.js";
 
@@ -18,7 +25,7 @@ let data = [...initData];
 // * Endpoint: get users
 app.get("/users", (req, res) => {
   // The response should not contain passwords.
-  res.json(data);
+  res.json(zUsersRes.parse(data));
 });
 
 // * Endpoint: get users (wrong format)
@@ -33,13 +40,13 @@ app.get("/users_wrong", (req, res) => {
     };
   });
   // The response should not contain passwords.
-  res.send(dataNew);
+  res.send(zUsersWrongRes.parse(dataNew));
 });
 
 // * Endpoint: create user
-app.post("/users", async (req, res, next) => {
+app.post("/users", validateData(zUsersCreateReq), async (req, res, next) => {
   setTimeout(() => {
-    const { confirmPassword, ...rest } = req.body;
+    const { confirmPassword, ...rest } = req.body as UserCreateReq;
     // This will fail if undefined.
     debug(rest.firstName.toUpperCase());
     debug(rest.lastName.toUpperCase());

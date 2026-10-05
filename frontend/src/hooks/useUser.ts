@@ -5,11 +5,11 @@ import axios from "axios";
 import { useShallow } from "zustand/shallow";
 
 import { URL_DATA, refetchInterval } from "../utils/env";
-import { type User } from "../utils/schema";
+import { type User, usersSchema } from "../utils/schema";
 import useStore from "./store";
 
 function useUsers() {
-  const [setUsers, setFetchUsers] = useStore(
+  const [setUsers, setFetchUsers, setError] = useStore(
     useShallow((state) => [
       state.setUsers,
       state.setFetchUsers,
@@ -19,10 +19,20 @@ function useUsers() {
 
   async function fetchUsers() {
     const res = await axios.get<User[]>(URL_DATA);
-    //
-    console.log({ data: res.data });
-    //
-    const usersSorted = res.data.sort((a, b) => b.createdAt - a.createdAt);
+
+    // Validation from Zod
+    const result = usersSchema.safeParse(res.data);
+
+    if (!result.success) {
+      console.log({ error: result.error.issues });
+      const errorMsg = JSON.stringify(result.error.issues);
+      setError(errorMsg);
+      return Promise.reject(errorMsg);
+    }
+
+    // Notice that result.data has the correct type.
+    const usersSorted = result.data.sort((a, b) => b.createdAt - a.createdAt);
+
     setUsers(usersSorted);
     return null; // I don't need react query to return data.
   }

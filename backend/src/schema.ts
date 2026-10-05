@@ -1,11 +1,12 @@
+import { z } from "zod";
 import dayjs from "dayjs";
-import * as z from "zod";
 
 const yearUpper = dayjs().year();
 const yearLower = yearUpper - 100;
 
-const userSchema = z.object({
+export const zUserBase = z.object({
   id: z.string().min(1, { message: "Missing ID" }),
+
   createdAt: z.number(),
   firstName: z
     .string()
@@ -24,9 +25,6 @@ const userSchema = z.object({
     .regex(/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/, {
       message: "Use format YYYY-MM-DD.",
     })
-    // .refine((s) => z.coerce.date().safeParse(s).success, {
-    //   message: "Invalid date",
-    // })
     .refine(
       (s) => {
         const year = dayjs(s).year();
@@ -40,27 +38,45 @@ const userSchema = z.object({
         message: `Year not between ${yearLower} to ${yearUpper}`,
       },
     ),
+  password: z
+    .string()
+    .min(4, { message: "Password too short" })
+    .max(20, { message: "Password too long" }),
 });
 
-// Array of users
-export const usersSchema = z.array(userSchema);
+// Get user
+export const zUsersRes = z.array(zUserBase.omit({ password: true }));
 
-// Type
-export type User = z.infer<typeof userSchema>;
-
-// Form validation
-export const formSchema = userSchema
+// Create user
+export const zUsersCreateReq = zUserBase
   .omit({ id: true, createdAt: true })
   .extend({
-    password: z
-      .string()
-      .min(4, { message: "Password too short" })
-      .max(20, { message: "Password too long" }),
     confirmPassword: z.string().min(1, { message: "Confirm password" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
+export const zUsersCreateRes = z.object({
+  status: z.string(),
+});
+export type UserCreateReq = z.infer<typeof zUsersCreateReq>;
 
-export type Form = z.infer<typeof formSchema>;
+// Get user_wrong
+export const zUsersWrongRes = z.array(
+  zUserBase
+    .omit({
+      firstName: true,
+      lastName: true,
+      password: true,
+      dateOfBirth: true,
+    })
+    .extend({
+      firstname: z.string(),
+      lastname: z.string(),
+      dateOfBirth: z.string(),
+    }),
+);
+
+// Reset
+export const zUsersResetRes = zUsersCreateRes;

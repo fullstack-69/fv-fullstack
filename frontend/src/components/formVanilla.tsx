@@ -7,6 +7,7 @@ import { useShallow } from "zustand/shallow";
 import useStore from "../hooks/store";
 import { URL_DATA } from "../utils/env";
 import { getInitData } from "../utils/helperFns";
+import { formSchema } from "../utils/schema";
 
 const modalStyles: Styles = {
   overlay: {
@@ -77,6 +78,16 @@ const FormVanilla: FC = () => {
 
   async function sendData(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault();
+    const result = formSchema.safeParse(values);
+    if (!result.success) {
+      console.log(result);
+      const errMsg = result.error.issues
+        .map((el) => `• [${String(el.path[0])}] - ${el.message}`)
+        .join("\n");
+      setError(errMsg);
+      return;
+    }
+
     try {
       await axios.post(URL_DATA, values);
       setOpen(false);
