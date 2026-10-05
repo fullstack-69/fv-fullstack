@@ -1,0 +1,26 @@
+name: ${PROJECT_NAME}
+services:
+  backend:
+    image: ${BACKEND_IMAGE_NAME}
+    container_name: ${PROJECT_NAME}-backend
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    networks:
+      - fv-net
+    environment:
+      - DEBUG=${DEBUG}
+      - BACKEND_PORT=${BACKEND_PORT}
+  frontend:
+    depends_on:
+      - backend
+    image: ${FRONTEND_IMAGE_NAME}
+    container_name: ${PROJECT_NAME}-frontend
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    networks:
+      - fv-net
+    environment:
+      - NGINX_PROXY=http://${PROJECT_NAME}-backend:${BACKEND_PORT}
+      - NGINX_PORT=${FRONTEND_PORT}
+networks:
+  fv-net:

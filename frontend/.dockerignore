@@ -1,0 +1,4 @@
+.git
+.env.test
+dist
+node_modules
